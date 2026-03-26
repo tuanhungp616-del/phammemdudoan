@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>V99 CLOUD DOMINATOR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050505; --panel: rgba(10, 10, 15, 0.9); --gold: #FFD700; --cyan: #00ffff; --red: #ff003c; --border: rgba(0, 255, 255, 0.3); }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
+        #matrix-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.3; }
+        .glass { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 0 20px rgba(0,255,255,0.1); backdrop-filter: blur(10px); padding: 15px; margin-bottom: 15px; }
+        header { height: 60px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--cyan); position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--cyan); display: flex; align-items: center; gap: 8px; text-shadow: 0 0 15px var(--cyan); }
+        .pane { max-width: 500px; margin: 20px auto; padding: 15px; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .cate-title { font-size: 1rem; color: var(--cyan); margin-bottom: 10px; text-transform: uppercase; border-left: 3px solid var(--cyan); padding-left: 8px; font-family: 'Playfair Display'; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Nunito'; font-size: 12px; font-weight: 900; color: #fff; width: 100%; margin-bottom: 10px; background: linear-gradient(90deg, #00b0ff, #0055ff); text-transform: uppercase; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-red { background: linear-gradient(90deg, #ff0055, #d50000); }
+        .btn-pur { background: linear-gradient(90deg, #aa00ff, #ff0055); box-shadow: 0 0 15px rgba(170,0,255,0.4); }
+        .btn-dark { background: #111; color: var(--cyan); border: 1px solid #333; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .txbig { font-family: 'Playfair Display'; font-weight: 900; text-align: center; margin: 10px 0; }
+        .txtai { color: var(--red); text-shadow: 0 0 20px var(--red); }
+        .txxiu { color: var(--cyan); text-shadow: 0 0 20px var(--cyan); }
+        .conf-box { width: 100%; background: #222; height: 15px; border-radius: 10px; position: relative; overflow: hidden; border: 1px solid #444; }
+        .conf-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), var(--red)); transition: 0.5s; }
+        .conf-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 10px; font-family: 'Share Tech Mono'; font-weight: bold; text-shadow: 0 0 2px #000; }
+        .input-box { width: 100%; background: #111; border: 1px solid var(--cyan); border-radius: 8px; color: var(--gold); padding: 12px; font-family: 'Share Tech Mono'; font-size: 14px; margin-bottom: 10px; outline: none; text-align: center; }
+        
+        #game-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: #000; animation: popIn 0.2s; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+        #game-frame { width: 100%; height: 100%; border: none; }
+        .close-game-btn { position: absolute; top: 40px; left: 10px; background: rgba(0,0,0,0.9); color: var(--red); border: 1px solid var(--red); padding: 6px 12px; border-radius: 6px; font-weight: 900; z-index: 2005; cursor:pointer;}
+        .drag-handle { width: 100%; text-align: center; color: #666; font-size: 18px; padding-bottom: 5px; cursor: grab; border-bottom: 1px dashed #333; margin-bottom: 5px;}
+        #bridge-detect-panel { position: absolute; top: 40px; right: 10px; width: 160px; background: rgba(5,5,5,0.95); border: 1px solid var(--cyan); border-radius: 10px; padding: 10px; z-index: 2001;}
+        .robo-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--cyan); box-shadow: 0 0 15px var(--cyan); background: #000; margin-bottom: 5px;}
+        #big-center-panel { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; background: rgba(10,10,15,0.95); border: 2px solid var(--cyan); border-radius: 20px; box-shadow: 0 0 50px rgba(0, 255, 255, 0.2); padding: 30px; z-index: 2002; flex-direction: column; align-items: center; }
+        
+        /* Màn hình đăng nhập */
+        #login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div id="login-overlay">
+        <div class="glass" style="width: 90%; max-width: 350px; text-align: center; border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.2);">
+            <h2 style="color: var(--gold); font-family: 'Playfair Display'; margin-bottom: 5px;"><i class="fas fa-lock"></i> V99 SECURITY</h2>
+            <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">Vui lòng nhập mã Key để truy cập</p>
+            <input type="text" id="login-key" class="input-box" placeholder="Nhập Key Vĩnh Viễn...">
+            <button class="btn" style="background: linear-gradient(90deg, #FFD700, #ff8a00); color: #000;" onclick="submitLogin()">XÁC NHẬN VÀO HỆ THỐNG</button>
+            <div id="login-msg" style="color: var(--red); margin-top: 10px; font-size: 12px; font-weight: bold;"></div>
+        </div>
+    </div>
+    <div id="game-overlay">
+        <div style="width: 100%; background: #000; color: #0f0; font-family: 'Share Tech Mono'; font-size: 11px; padding: 5px; border-bottom: 1px solid #0f0; display: flex;"><marquee scrollamount="5">V99 CLOUD SERVER | CHỐNG LAG, LỌC PHIÊN CHUẨN XÁC THEO TỪNG GAME...</marquee></div>
+        <button class="close-game-btn" onclick="closeGame()"><i class="fas fa-sign-out-alt"></i> THOÁT</button>
+        <iframe id="game-frame" src=""></iframe>
+        
+        <div id="bridge-detect-panel" class="glass"><div id="bridge-detect-panel-header" class="drag-handle"><i class="fas fa-arrows-alt"></i></div><div style="text-align:center;"><img class="robo-img" src="https://i.postimg.cc/wMdhjZFJ/1773446152525.png"></div><div style="font-size:12px;color:var(--gold);font-weight:bold;text-align:center;text-shadow:0 0 8px var(--gold);" id="auto-advice">BOOTING...</div><div style="text-align:center; font-family:'Share Tech Mono'; color:#aaa; font-size:10px; margin-top:5px;">PHIÊN: <span id="auto-phien" style="color:var(--cyan);">...</span></div><div class="txbig" id="auto-big" style="font-size: 35px;">...</div><div class="conf-box"><div class="conf-bar" id="auto-bar"></div><div class="conf-text" id="auto-pct">0%</div></div></div>
+        
+        <div id="big-center-panel"><h2 style="color: var(--cyan); font-family: 'Playfair Display'; text-shadow: 0 0 10px var(--cyan); margin-bottom: 15px;"><i class="fas fa-satellite-dish"></i> HACKER MODE</h2><div style="color:var(--gold); font-weight:bold; font-size: 15px; text-align:center; margin-bottom: 15px;" id="big-advice" style="animation: pulse 1.5s infinite;">ĐANG KẾT NỐI MÁY CHỦ...</div><div style="text-align:center; font-family:'Share Tech Mono'; color:#fff; font-size:14px; background: #222; padding: 8px 20px; border-radius: 20px; border: 1px solid #444;">MÃ PHIÊN: <span id="big-phien" style="color:var(--cyan);">...</span></div><div class="txbig" id="big-result" style="font-size: 80px; margin: 25px 0;">...</div><div style="width: 100%; margin-top: 10px;"><div style="display: flex; justify-content: space-between; font-family: 'Share Tech Mono'; font-size: 12px; color: #aaa; margin-bottom: 5px;"><span>TỶ LỆ THẮNG (WIN RATE)</span><span id="big-pct-text" style="color: var(--gold); font-weight: bold;">0%</span></div><div class="conf-box" style="height: 25px; border-radius: 15px;"><div class="conf-bar" id="big-bar"></div></div></div></div>
+    </div>
+
+    <div id="main-app" style="display: none;">
+        <header><div class="logo"><i class="fas fa-microchip"></i> V99 CLOUD DOMINATOR</div></header>
+
+        <div class="pane">
+            <div id="admin-panel" class="glass" style="display: none; border-color: var(--gold);">
+                <div class="cate-title" style="color: var(--gold); border-color: var(--gold);"><i class="fas fa-gavel"></i> QUẢN LÝ KEY KHÁCH</div>
+                <input type="text" id="target-key" class="input-box" placeholder="Nhập tên Key của khách..." style="font-size: 12px; margin-bottom: 10px;">
+                <div class="grid-2">
+                    <button class="btn btn-red" onclick="adminAction('lock')"><i class="fas fa-lock"></i> KHÓA KEY</button>
+                    <button class="btn btn-dark" onclick="adminAction('unlock')" style="border-color: var(--gold); color: var(--gold);"><i class="fas fa-unlock"></i> MỞ KHÓA</button>
+                </div>
+            </div>
+
+            <div class="glass"><div class="cate-title" style="color: #ff00ff; border-color: #ff00ff;"><i class="fas fa-meteor"></i> HỆ THỐNG HIT.CLUB</div><button class="btn btn-pur" onclick="startAutoAPI('hitclub_md5', '')">TÀI XỈU MD5 HIT.CLUB (BẢNG TO)</button></div>
+            <div class="glass"><div class="cate-title" style="color: #ff8a00; border-color: #ff8a00;"><i class="fas fa-crown"></i> ĐỘC QUYỀN SUN.WIN</div><div class="grid-2"><button class="btn" style="background: linear-gradient(90deg, #ff8a00, #e52e71);" onclick="startAutoAPI('sunwin_tx', '')">TÀI XỈU SUNWIN (BẢNG TO)</button><button class="btn btn-pur" onclick="startAutoAPI('sunwin_sicbo', '')">SICBO SUNWIN (BẢNG TO)</button></div></div>
+            <div class="glass"><div class="cate-title"><i class="fas fa-gem"></i> HỆ THỐNG BETVIP</div><div class="grid-2"><button class="btn" onclick="startAutoAPI('betvip_tx', 'https://play.betvip.fit/')">TÀI XỈU HŨ BETVIP</button><button class="btn btn-dark" onclick="startAutoAPI('betvip_md5', 'https://play.betvip.fit/')">MD5 BETVIP</button></div></div>
+            <div class="glass"><div class="cate-title" style="color: #00e676; border-color: #00e676;"><i class="fas fa-globe"></i> HỆ THỐNG LC79.BET</div><div class="grid-2"><button class="btn" style="background: linear-gradient(90deg, #00e676, #00b0ff);" onclick="startAutoAPI('lc79_tx', 'https://lc79.bet')">TÀI XỈU HŨ LC79</button><button class="btn btn-dark" onclick="startAutoAPI('lc79_md5', 'https://lc79.bet')">MD5 LC79</button></div><button class="btn btn-red" onclick="startAutoAPI('lc79_xd', 'https://lc79.bet')">XÓC ĐĨA CHẴN LẺ LC79</button></div>
+        </div>
+    </div>
+    <script>
+        const cvs = document.getElementById('matrix-canvas'); const ctx = cvs.getContext('2d'); cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+        const chars = '0123456789ABCDEF'.split(''); const fz = 14; const cols = cvs.width/fz; const drops = Array(Math.floor(cols)).fill(1);
+        setInterval(() => { ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; ctx.fillRect(0,0,cvs.width,cvs.height); ctx.fillStyle = '#0ff'; ctx.font = fz + 'px monospace'; drops.forEach((y, i) => { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*fz, y*fz); if(y*fz > cvs.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; }); }, 40);
+
+        let autoInterval, activeGame = "", phienCu = "", currentUserKey = "";
+
+        // ===================================
+        // BẢO MẬT & ĐĂNG NHẬP
+        // ===================================
+        async function submitLogin() {
+            let keyInput = document.getElementById('login-key').value;
+            let msgEl = document.getElementById('login-msg');
+            msgEl.innerText = "Đang kiểm tra Key...";
+            
+            try {
+                let res = await fetch('/api/login', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key: keyInput})
+                });
+                let data = await res.json();
+                
+                if(data.status === "success") {
+                    currentUserKey = keyInput;
+                    document.getElementById('login-overlay').style.display = "none";
+                    document.getElementById('main-app').style.display = "block";
+                    if(data.role === "admin") {
+                        document.getElementById('admin-panel').style.display = "block";
+                    }
+                } else {
+                    msgEl.innerText = data.msg;
+                }
+            } catch(e) { msgEl.innerText = "Lỗi kết nối máy chủ!"; }
+        }
+
+        async function adminAction(actionType) {
+            let target = document.getElementById('target-key').value;
+            if(!target) return alert("Chưa nhập tên Key khách!");
+            try {
+                let res = await fetch('/api/admin', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({admin_key: currentUserKey, target_key: target, action: actionType})
+                });
+                let data = await res.json();
+                alert(data.msg);
+            } catch(e) { alert("Lỗi kết nối!"); }
+        }
+
+        // ===================================
+        // VẬN HÀNH QUÉT SÀN
+        // ===================================
+        function clearUI() {
+            document.getElementById('auto-advice').innerText = "ĐANG KẾT NỐI MÁY CHỦ..."; document.getElementById('big-advice').innerText = "ĐANG KẾT NỐI MÁY CHỦ...";
+            document.getElementById('auto-phien').innerText = "..."; document.getElementById('big-phien').innerText = "...";
+            document.getElementById('auto-big').innerText = "..."; document.getElementById('big-result').innerText = "...";
+            document.getElementById('auto-bar').style.width = "0%"; document.getElementById('big-bar').style.width = "0%";
+            document.getElementById('auto-pct').innerText = "0%"; document.getElementById('big-pct-text').innerText = "0%";
+        }
+
+        async function loopAuto() {
+            try {
+                // Truyền Key vào mỗi lần quét để check xem có bị Admin khóa đột ngột không
+                let req = await fetch('/api/scan?tool=' + activeGame + '&key=' + currentUserKey);
+                let json = await req.json();
+                
+                if(json.status === "auth_error") {
+                    closeGame();
+                    document.getElementById('main-app').style.display = "none";
+                    document.getElementById('login-overlay').style.display = "flex";
+                    document.getElementById('login-msg').innerText = json.msg;
+                    currentUserKey = "";
+                    return;
+                }
+
+                let res = json.data;
+                if(res && res.phien !== phienCu) {
+                    phienCu = res.phien;
+                    let isTai = res.du_doan.includes("TÀI") || res.du_doan.includes("CHẴN");
+                    let colorClass = isTai ? "txtai" : "txxiu";
+
+                    document.getElementById('auto-phien').innerText = res.phien; document.getElementById('auto-advice').innerText = res.loi_khuyen;
+                    let b1 = document.getElementById('auto-big'); b1.innerText = res.du_doan; b1.className = "txbig " + colorClass;
+                    document.getElementById('auto-bar').style.width = res.ti_le + "%"; document.getElementById('auto-pct').innerText = res.ti_le + "%";
+
+                    document.getElementById('big-phien').innerText = res.phien; document.getElementById('big-advice').innerText = res.loi_khuyen;
+                    let b2 = document.getElementById('big-result'); b2.innerText = res.du_doan; b2.className = "txbig " + colorClass;
+                    document.getElementById('big-bar').style.width = res.ti_le + "%"; document.getElementById('big-pct-text').innerText = res.ti_le + "%";
+                }
+            } catch(e) {}
+        }
+
+        function startAutoAPI(tool, url) {
+            document.getElementById('game-overlay').style.display = "block";
+            clearInterval(autoInterval); phienCu = ""; activeGame = tool; clearUI();
+            
+            if(tool.includes('sunwin') || tool.includes('hitclub')) {
+                document.getElementById('game-frame').style.display = "none"; document.getElementById('game-frame').src = "";
+                document.getElementById('game-overlay').style.background = "radial-gradient(circle, #1a1a24 0%, #000 100%)";
+                document.getElementById('bridge-detect-panel').style.display = "none"; document.getElementById('big-center-panel').style.display = "flex";
+            } else {
+                document.getElementById('game-frame').style.display = "block"; document.getElementById('game-frame').src = url;
+                document.getElementById('game-overlay').style.background = "#000";
+                document.getElementById('bridge-detect-panel').style.display = "block"; document.getElementById('big-center-panel').style.display = "none";
+            }
+            
+            loopAuto(); autoInterval = setInterval(loopAuto, 3000); 
+        }
+
+        function closeGame() { clearInterval(autoInterval); document.getElementById('game-overlay').style.display = 'none'; document.getElementById('game-frame').src = ''; }
+
+        function makeDraggable(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; var header = document.getElementById(elmnt.id + "-header");
+            if (header) { header.onmousedown = dragStart; header.ontouchstart = dragStart; header.style.cursor = "grab"; } 
+            else { elmnt.onmousedown = dragStart; elmnt.ontouchstart = dragStart; }
+            function dragStart(e) { e = e || window.event; if(e.type === 'touchstart') { pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY; } else { pos3 = e.clientX; pos4 = e.clientY; } document.onmouseup = dragEnd; document.onmousemove = dragAction; document.ontouchend = dragEnd; document.ontouchmove = dragAction; }
+            function dragAction(e) { e = e || window.event; if(e.type === 'touchmove') { pos1 = pos3 - e.touches[0].clientX; pos2 = pos4 - e.touches[0].clientY; pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY; } else { pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; } elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
+            function dragEnd() { document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; }
+        }
+        makeDraggable(document.getElementById("bridge-detect-panel"));
+    </script>
+</body>
+</html>
